@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from indicators import add_technical_indicators
-from stock_analysis import fetch_stock_history, summarize_stock
+from stock_analysis import analyze_stock, format_indicator_table
 from utils import ensure_project_directories, format_percentage
 
 
@@ -23,15 +22,15 @@ def main() -> None:
     args = build_parser().parse_args()
     ensure_project_directories()
 
-    history = fetch_stock_history(args.ticker, period=args.period, interval=args.interval)
-    enriched_history = add_technical_indicators(history)
-    summary = summarize_stock(args.ticker, enriched_history)
+    summary, enriched_history = analyze_stock(args.ticker, period=args.period, interval=args.interval)
 
     print(f"Ticker: {summary.ticker}")
     print(f"Latest close: ${summary.latest_close:,.2f}")
     print(f"Period return: {format_percentage(summary.period_return)}")
     print(f"Average volume: {summary.average_volume:,.0f}")
     print(f"Observations: {summary.observations}")
+    print("\nLatest technical indicators:")
+    print(format_indicator_table(enriched_history))
 
 
 if __name__ == "__main__":
