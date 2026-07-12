@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+plotly
+yfinance
+ta
+scipy
+requests
+openai
+jupyter
