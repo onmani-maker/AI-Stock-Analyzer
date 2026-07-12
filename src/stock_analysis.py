@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
+from indicators import add_technical_indicators
 from utils import DATA_DIR, save_dataframe
 
 
@@ -20,6 +21,20 @@ class StockSummary:
     period_return: float
     average_volume: float
     observations: int
+
+
+INDICATOR_LABELS = {
+    "sma_20": "SMA (20)",
+    "sma_50": "SMA (50)",
+    "ema_20": "EMA (20)",
+    "rsi_14": "RSI (14)",
+    "macd": "MACD",
+    "macd_signal": "MACD Signal",
+    "macd_histogram": "MACD Histogram",
+    "bb_upper": "Bollinger Upper (20, 2)",
+    "bb_middle": "Bollinger Middle (20)",
+    "bb_lower": "Bollinger Lower (20, 2)",
+}
 
 
 def _normalize_ticker(ticker: str) -> str:
@@ -102,3 +117,45 @@ def summarize_stock(ticker: str, history: pd.DataFrame) -> StockSummary:
         average_volume=average_volume,
         observations=len(history),
     )
+
+
+def analyze_stock(ticker: str, period: str = "1y", interval: str = "1d") -> tuple[StockSummary, pd.DataFrame]:
+    """Fetch stock history, append indicators, and return summary plus enriched data."""
+    symbol = _normalize_ticker(ticker)
+    history = fetch_stock_history(symbol, period=period, interval=interval)
+    enriched_history = add_technical_indicators(history)
+    summary = summarize_stock(symbol, enriched_history)
+
+    return summary, enriched_history
+
+
+def latest_indicator_values(history: pd.DataFrame) -> pd.DataFrame:
+    """Return the most recent available values for supported indicators."""
+    if history.empty:
+        raise ValueError("History must contain at least one row.")
+
+    indicator_columns = [column for column in INDICATOR_LABELS if column in history.columns]
+    if not indicator_columns:
+        history = add_technical_indicators(history)
+        indicator_columns = [column for column in INDICATOR_LABELS if column in history.columns]
+
+    latest_values = history[indicator_columns].ffill().iloc[-1]
+    rows = [
+        {
+            "Indicator": INDICATOR_LABELS[column],
+            "Value": latest_values[column],
+        }
+        for column in indicator_columns
+    ]
+
+    return pd.DataFrame(rows)
+
+
+def format_indicator_table(history: pd.DataFrame) -> str:
+    """Format the latest indicator values as a clean text table."""
+    indicators = latest_indicator_values(history).copy()
+    indicators["Value"] = indicators["Value"].map(
+        lambda value: "N/A" if pd.isna(value) else f"{float(value):,.2f}"
+    )
+
+    return indicators.to_string(index=False)

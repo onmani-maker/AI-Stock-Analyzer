@@ -54,6 +54,33 @@ print(f"Saved data to {csv_path}")
 
 Use the modules in `src/` to fetch stock data, calculate indicators, analyze options, screen tickers, and prepare AI market reports.
 
+Display the latest SMA, EMA, RSI, MACD, and Bollinger Band values for a ticker:
+
+```python
+from stock_analysis import analyze_stock, format_indicator_table
+
+summary, enriched_history = analyze_stock("AAPL", period="1y", interval="1d")
+
+print(f"Ticker: {summary.ticker}")
+print(format_indicator_table(enriched_history))
+```
+
+Example output:
+
+```text
+               Indicator  Value
+                SMA (20) 192.14
+                SMA (50) 187.63
+                EMA (20) 193.02
+                RSI (14)  58.41
+                    MACD   2.18
+             MACD Signal   1.76
+          MACD Histogram   0.42
+ Bollinger Upper (20, 2) 202.59
+   Bollinger Middle (20) 192.14
+ Bollinger Lower (20, 2) 181.69
+```
+
 ## Future Roadmap
 
 - Add portfolio analytics and risk metrics.
