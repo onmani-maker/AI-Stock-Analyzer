@@ -43,6 +43,15 @@ Run the example command-line entry point:
 python src/main.py --ticker AAPL
 ```
 
+Download historical stock data with `yfinance` and save it as a CSV under `data/stocks/`:
+
+```python
+from stock_analysis import download_stock_data
+
+csv_path = download_stock_data("AAPL", period="6mo", interval="1d")
+print(f"Saved data to {csv_path}")
+```
+
 Use the modules in `src/` to fetch stock data, calculate indicators, analyze options, screen tickers, and prepare AI market reports.
 
 ## Future Roadmap
