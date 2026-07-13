@@ -54,6 +54,27 @@ print(f"Saved data to {csv_path}")
 
 Use the modules in `src/` to fetch stock data, calculate indicators, analyze options, screen tickers, and prepare AI market reports.
 
+Download and display an options chain with `yfinance`. The command lists all available expiration dates, downloads both calls and puts for the selected expiration, saves CSV files under `data/options/`, and displays Strike, Bid, Ask, Last Price, Volume, Open Interest, and Implied Volatility:
+
+```bash
+python src/main.py --ticker AAPL --options --expiration 2026-01-16
+```
+
+Use the reusable options helpers directly from Python:
+
+```python
+from option_analysis import download_option_chain, list_option_expirations
+
+expirations = list_option_expirations("AAPL")
+print(expirations)
+
+chain = download_option_chain("AAPL", expiration=expirations[0])
+print(f"Calls saved to {chain.calls_path}")
+print(f"Puts saved to {chain.puts_path}")
+print(chain.calls.head())
+print(chain.puts.head())
+```
+
 Display the latest SMA, EMA, RSI, MACD, and Bollinger Band values for a ticker:
 
 ```python
