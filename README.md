@@ -7,7 +7,7 @@ The project is designed as a clean foundation for research, analytics, and futur
 ## Features
 
 - Analyze U.S. equity price history and summary statistics.
-- Analyze options chains, including moneyness and basic contract metrics.
+- Analyze options chains, including moneyness, basic contract metrics, and Black-Scholes Greeks.
 - Calculate technical indicators such as moving averages, RSI, MACD, and Bollinger Bands.
 - Screen stocks using configurable technical and performance criteria.
 - Generate AI-powered market report prompts and summaries.
@@ -75,6 +75,37 @@ print(chain.calls.head())
 print(chain.puts.head())
 ```
 
+
+Calculate Black-Scholes option Greeks (Delta, Gamma, Theta, Vega, and Rho) for a single call or put option. Inputs are current stock price, strike price, time to expiration in years, annualized risk-free rate as a decimal, annualized implied volatility as a decimal, and option type:
+
+```bash
+python src/main.py --greeks \
+  --stock-price 190 \
+  --strike-price 195 \
+  --time-to-expiration 0.5 \
+  --risk-free-rate 0.05 \
+  --implied-volatility 0.25 \
+  --option-type call
+```
+
+Calculate put Greeks from Python and receive the results as a pandas DataFrame:
+
+```python
+from option_analysis import calculate_option_greeks
+
+greeks = calculate_option_greeks(
+    stock_price=190,
+    strike_price=195,
+    time_to_expiration=0.5,
+    risk_free_rate=0.05,
+    implied_volatility=0.25,
+    option_type="put",
+)
+print(greeks)
+```
+
+The returned DataFrame includes the normalized input assumptions plus `Delta`, `Gamma`, `Theta`, `Vega`, and `Rho`. Theta is annualized; Vega and Rho are sensitivities to a 1.00 absolute change in implied volatility and risk-free rate respectively.
+
 Display the latest SMA, EMA, RSI, MACD, and Bollinger Band values for a ticker:
 
 ```python
@@ -105,7 +136,7 @@ Example output:
 ## Future Roadmap
 
 - Add portfolio analytics and risk metrics.
-- Expand options analytics with Greeks and volatility modeling.
+- Expand options analytics with volatility modeling and strategy payoff analysis.
 - Add backtesting support for quantitative strategies.
 - Integrate broker and market-data provider adapters.
 - Build automated report generation workflows.
