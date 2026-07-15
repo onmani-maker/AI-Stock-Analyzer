@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from math import exp, log, sqrt
 from pathlib import Path
 
@@ -85,9 +86,17 @@ def _normalize_option_type(option_type: str) -> str:
     return normalized_type
 
 
-def _validate_positive_number(value: float, field_name: str) -> float:
-    """Validate that a Black-Scholes input is strictly positive."""
+def _validate_finite_number(value: float, field_name: str) -> float:
+    """Validate that a Black-Scholes input is finite."""
     numeric_value = float(value)
+    if not math.isfinite(numeric_value):
+        raise ValueError(f"{field_name} must be a finite number.")
+    return numeric_value
+
+
+def _validate_positive_number(value: float, field_name: str) -> float:
+    """Validate that a Black-Scholes input is finite and strictly positive."""
+    numeric_value = _validate_finite_number(value, field_name)
     if numeric_value <= 0:
         raise ValueError(f"{field_name} must be greater than zero.")
     return numeric_value
@@ -122,7 +131,7 @@ def calculate_option_greeks(
     strike = _validate_positive_number(strike_price, "Strike price")
     time = _validate_positive_number(time_to_expiration, "Time to expiration")
     volatility = _validate_positive_number(implied_volatility, "Implied volatility")
-    rate = float(risk_free_rate)
+    rate = _validate_finite_number(risk_free_rate, "Risk-free rate")
     normalized_type = _normalize_option_type(option_type)
 
     sqrt_time = sqrt(time)
